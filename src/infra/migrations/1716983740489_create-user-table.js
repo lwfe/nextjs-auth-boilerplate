@@ -21,6 +21,7 @@ exports.up = (pgm) => {
     email: {
       type: "varchar(255)",
       notNull: true,
+      unique: true,
     },
     password: {
       type: "varchar(255)",

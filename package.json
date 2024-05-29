@@ -17,14 +17,17 @@
     "migration:down": "node-pg-migrate -m src/infra/migrations --envPath .env down"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
     "next": "14.2.3",
     "pg": "^8.11.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/jest": "^29.5.12",
     "@types/node": "^20",
     "@types/node-pg-migrate": "^2.3.1",

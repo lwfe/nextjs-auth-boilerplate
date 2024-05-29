@@ -11,7 +11,9 @@ exports.shorthands = undefined;
 exports.up = (pgm) => {
   pgm.createTable("USERS", {
     id: {
-      type: "serial",
+      type: "uuid",
+      default: pgm.func("gen_random_uuid()"),
+      notNull: true,
       primaryKey: true,
     },
     name: {
@@ -29,10 +31,12 @@ exports.up = (pgm) => {
     },
     created_at: {
       type: "timestamp",
+      notNull: true,
       default: pgm.func("current_timestamp"),
     },
     updated_at: {
       type: "timestamp",
+      notNull: true,
       default: pgm.func("current_timestamp"),
     },
   });

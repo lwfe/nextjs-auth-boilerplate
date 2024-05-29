@@ -30,8 +30,13 @@ describe("POST /api/v1/users", () => {
 
     const responseBody = await response.json();
 
+    expect(responseBody.id).toBeTruthy();
     expect(responseBody.name).toBe(userSut.name);
     expect(responseBody.email).toBe(userSut.email);
+    expect(responseBody.password).toBeUndefined();
+    expect(responseBody.created_at).toBeTruthy();
+    expect(responseBody.updated_at).toBeTruthy();
+    expect(responseBody.role).toBeTruthy();
   });
 
   it("should return 400 when email is invalid", async () => {
@@ -83,6 +88,25 @@ describe("POST /api/v1/users", () => {
     const responseBody = await response.json();
 
     expect(responseBody.errors[0].name).toBe("Nome é obrigatório");
+  });
+
+  it("should return 400 if role is not in 'default' or 'admin'", async () => {
+    const response = await fetch("http://localhost:3000/api/v1/users", {
+      method: "POST",
+      body: JSON.stringify({
+        name: userSut.name,
+        password: userSut.password,
+        email: userSut.email,
+        role: "test" as any,
+      } as IUser),
+    });
+    expect(response.status).toBe(400);
+
+    const responseBody = await response.json();
+
+    expect(responseBody.errors[0].role).toBe(
+      "Role deve ser 'default' ou 'admin'"
+    );
   });
 
   it("should return 409 when email is already in use", async () => {

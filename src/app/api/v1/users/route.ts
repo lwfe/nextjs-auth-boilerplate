@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    // pegar informações do usuário
     const body = (await req.json()) as IUserCreateDTO;
 
     const parsedBody = userCreateSchema.safeParse(body);
@@ -21,7 +20,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // verificar se o usuário já existe no db
     const userExists = await user.findOneByEmail(body.email);
 
     if (userExists) {
@@ -31,18 +29,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // criptograr a senha
-    const password = body.password;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const passwordInput = body.password;
+    const hashedPassword = await bcrypt.hash(passwordInput, 10);
 
-    // inserir no bd
     const createdUser = await user.create({
       ...body,
       password: hashedPassword,
     });
 
-    // retornar usuário criado
-    return NextResponse.json(createdUser, { status: 201 });
+    const { password, ...serializedUser } = createdUser;
+    return NextResponse.json(serializedUser, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

@@ -10,4 +10,9 @@ export const userCreateSchema = z.object({
   password: z
     .string({ required_error: "Senha é obrigatório" })
     .min(6, "Senha deve ter pelo menos 6 digitos"),
+  role: z
+    .enum(["default", "admin"], {
+      errorMap: () => ({ message: "Role deve ser 'default' ou 'admin'" }),
+    })
+    .optional(),
 });

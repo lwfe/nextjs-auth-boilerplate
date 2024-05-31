@@ -17,8 +17,6 @@ exports.up = async (pgm) => {
     },
   });
 
-  await pgm.dropConstraint("USERS", "users_role_check");
-
   pgm.addConstraint("USERS", "users_role_check", {
     check: "role IN ('default', 'admin')",
   });

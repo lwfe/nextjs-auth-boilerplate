@@ -1,7 +1,9 @@
-import bcrypt from "bcrypt";
 import { userCreateSchema } from "./schemas";
-import user, { IUserCreateDTO } from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
+
+import password from "@/models/password";
+import validator from "@/models/validator";
+import user, { IUserCreateDTO } from "@/models/user";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,14 +32,14 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordInput = body.password;
-    const hashedPassword = await bcrypt.hash(passwordInput, 10);
+    const hashedPassword = await password.hash(passwordInput);
 
     const createdUser = await user.create({
       ...body,
       password: hashedPassword,
     });
 
-    const { password, ...serializedUser } = createdUser;
+    let serializedUser = validator.omit(createdUser, "password");
     return NextResponse.json(serializedUser, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

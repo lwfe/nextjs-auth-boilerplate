@@ -25,7 +25,12 @@ export default defineWorkspace([
     test: {
       name: 'BACKEND',
       root: './tests/backend',
-      environment: 'node'
+      environment: 'node',
+      poolOptions: {
+        threads: {
+          singleThread: true
+        }
+      }
     },
     resolve: {
       alias: {

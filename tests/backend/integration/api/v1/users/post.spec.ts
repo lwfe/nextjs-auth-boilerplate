@@ -6,7 +6,10 @@ beforeAll(cleanDatabase)
 
 async function cleanDatabase() {
   await database.query({
-    text: 'DELETE FROM "USERS";'
+    text: 'drop schema public cascade; create schema public;'
+  })
+  await fetch('http://localhost:3000/api/v1/migrations', {
+    method: 'POST'
   })
 }
 

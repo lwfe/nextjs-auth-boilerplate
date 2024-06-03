@@ -1,4 +1,4 @@
-import crypto from 'node:crypto'
+import crypto from 'crypto'
 
 import database from '@/infra/database'
 import { cookies } from 'next/headers'
@@ -14,7 +14,7 @@ interface ISession {
 
 const SESSION_EXPIRATION_IN_SECONDS = 60 * 60 * 24 * 30 // 30 days
 
-async function create(userId: string) {
+async function create(userId: string): Promise<ISession> {
   const token = crypto.randomBytes(48).toString('hex')
   const expiresAt = new Date(Date.now() + 1000 * SESSION_EXPIRATION_IN_SECONDS)
 
@@ -50,7 +50,6 @@ function setSessionIdCookieInResponse(sessionToken: string) {
     name: 'sessionId',
     value: sessionToken,
     maxAge: SESSION_EXPIRATION_IN_SECONDS,
-    httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     path: '/'
   })
@@ -61,7 +60,6 @@ function clearSessionIdCookie() {
     name: 'sessionId',
     value: '',
     maxAge: 0,
-    httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     path: '/'
   })

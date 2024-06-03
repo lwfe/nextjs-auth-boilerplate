@@ -3,7 +3,7 @@ import password from '@/models/password'
 
 async function createSessionAndSetCookies(userId: string) {
   const sessionObject = await session.create(userId)
-  session.setSessionIdCookieInResponse(sessionObject.token)
+  session.setSessionIdCookieInResponse(sessionObject.id)
   return sessionObject
 }
 

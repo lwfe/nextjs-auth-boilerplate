@@ -43,6 +43,7 @@ describe('POST /api/v1/session', () => {
     expect(responseBody.expires_at).toBeTruthy()
     expect(responseBody.created_at).toBeTruthy()
     expect(responseBody.updated_at).toBeTruthy()
+    expect(responseBody.role).toBeTruthy()
   })
 
   it('should return 401 when credentials are invalid', async () => {

@@ -15,5 +15,8 @@ export async function POST(request: Request) {
   const sessionObject = await authentication.createSessionAndSetCookies(
     storedUser?.id!
   )
-  return Response.json(sessionObject, { status: 201 })
+  return Response.json(
+    { ...sessionObject, role: storedUser?.role },
+    { status: 201 }
+  )
 }

@@ -50,7 +50,12 @@ export function AuthForm() {
           password: data.password
         })
       })
-      if (res.ok) route.push('/')
+      const body = await res.json()
+
+      if (res.ok) {
+        if (body.role === 'default') route.push('/')
+        if (body.role === 'admin') route.push('/admin')
+      }
     } catch (error) {
       console.error(error)
       alert(error)

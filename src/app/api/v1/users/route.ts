@@ -1,9 +1,11 @@
 import { userCreateSchema } from './schemas'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest } from 'next/server'
 
 import password from '@/models/password'
 import validator from '@/models/validator'
 import user, { IUserCreateDTO } from '@/models/user'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +14,7 @@ export async function POST(req: NextRequest) {
     const parsedBody = userCreateSchema.safeParse(body)
 
     if (!parsedBody.success) {
-      return NextResponse.json(
+      return Response.json(
         {
           errors: parsedBody.error.errors.map(err => ({
             [err.path[0]]: err.message
@@ -25,7 +27,7 @@ export async function POST(req: NextRequest) {
     const userExists = await user.findOneByEmail(body.email)
 
     if (userExists) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Esse email já está sendo usado por outro usuário' },
         { status: 409 }
       )
@@ -40,8 +42,22 @@ export async function POST(req: NextRequest) {
     })
 
     let serializedUser = validator.omit(createdUser, ['password'])
-    return NextResponse.json(serializedUser, { status: 201 })
+    return Response.json(serializedUser, { status: 201 })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return Response.json({ error: err.message }, { status: 500 })
   }
+}
+
+export async function GET(req: NextRequest) {
+  const q = req.nextUrl.searchParams
+  const page = q.get('page') ? Number(q?.get('page')) : 1
+  const limit = q.get('limit') ? Number(q?.get('limit')) : 10
+
+  const name = q.get('name') ?? undefined
+  const email = q.get('email') ?? undefined
+  const role = q.get('role') ?? undefined
+
+  const data = await user.filterUsers(page, limit, { name, email, role })
+
+  return Response.json(data, { status: 200 })
 }

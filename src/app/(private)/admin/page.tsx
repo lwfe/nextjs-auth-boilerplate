@@ -1,7 +1,20 @@
-import { columns } from './components/table/columns'
-import { DataTable } from './components/table/data-table'
+import { Table } from './components/table'
 
-export default function AdminPage() {
+export default async function AdminPage({
+  searchParams
+}: {
+  searchParams?: {
+    query?: string
+    role?: string
+    page?: string
+    limit?: string
+  }
+}) {
+  const query = searchParams?.query || ''
+  const role = searchParams?.role || ''
+  const page = searchParams?.page || ''
+  const limit = searchParams?.limit || ''
+
   return (
     <div className="flex h-full flex-1 flex-col space-y-8 p-8 overflow-y-auto">
       <div className="flex items-center justify-between space-y-2">
@@ -12,15 +25,13 @@ export default function AdminPage() {
           </p>
         </div>
       </div>
-      <DataTable
-        data={Array.from({ length: 40 }).map((_, index) => ({
-          id: index,
-          label: 'bug',
-          title: 'title',
-          status: 'open',
-          priority: 'low'
-        }))}
-        columns={columns}
+      <Table
+        params={{
+          query,
+          limit,
+          page,
+          role
+        }}
       />
     </div>
   )

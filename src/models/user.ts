@@ -32,4 +32,97 @@ async function findOneByEmail(email: string): Promise<IUser | null> {
   return query?.rows[0]
 }
 
-export default Object.freeze({ create, findOneByEmail })
+export interface IUserFilter {
+  name?: string
+  email?: string
+  role?: string
+}
+
+export interface IPaginatedResult<T> {
+  data: T[]
+  pagination: {
+    page: number
+    limit: number
+    totalRows: number
+    totalPages: number
+  }
+}
+
+async function filterUsers(
+  page: number,
+  limit: number,
+  filters: IUserFilter
+): Promise<IPaginatedResult<IUser>> {
+  const offset = (page - 1) * limit
+  let filterClauses = []
+  let values = []
+  let index = 1
+
+  if (filters.name) {
+    filterClauses.push(`name ILIKE $${index}`)
+    values.push(`${filters.name}%`)
+    index++
+  }
+
+  if (filters.email) {
+    filterClauses.push(`email ILIKE $${index}`)
+    values.push(`${filters.email}%`)
+    index++
+  }
+
+  if (filters.role) {
+    filterClauses.push(`role = $${index}`)
+    values.push(`${filters.role}`)
+    index++
+  }
+
+  const filterString =
+    filterClauses.length > 0 ? `WHERE ${filterClauses.join(' AND ')}` : ''
+
+  const queryData = `
+    SELECT
+      id,
+      name,
+      email,
+      role
+    FROM 
+      "USERS"
+    ${filterString}
+    ORDER BY id
+    LIMIT $${index}
+    OFFSET $${index + 1}
+  `
+
+  values.push(limit, offset)
+
+  const countQueryText = `
+    SELECT COUNT(*) AS totalRows
+    FROM "USERS"
+    ${filterString}
+  `
+
+  const query = (await database.query({
+    text: queryData,
+    values
+  })) as { rows: IUser[] }
+
+  const countQuery = await database.query({
+    text: countQueryText,
+    values: values.slice(0, -2)
+  })
+
+  const totalRows = parseInt(countQuery?.rows[0].totalrows, 10)
+  const totalPages = Math.ceil(totalRows / limit)
+
+  return {
+    data: query?.rows,
+    pagination: {
+      page,
+      limit,
+      totalRows,
+      totalPages
+    }
+  }
+}
+
+export default Object.freeze({ create, findOneByEmail, filterUsers })

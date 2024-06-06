@@ -25,17 +25,21 @@ import {
   TableRow
 } from '@/components/ui/table'
 
-import { DataTablePagination } from './data-table-pagination'
+import { IPaginatedResult } from '@/models/user'
+
 import { DataTableToolbar } from './data-table-toolbar'
+import { DataTablePagination } from './data-table-pagination'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  pagination: IPaginatedResult<TData>['pagination']
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data
+  data,
+  pagination
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -52,8 +56,14 @@ export function DataTable<TData, TValue>({
       sorting,
       columnVisibility,
       rowSelection,
-      columnFilters
+      columnFilters,
+      pagination: {
+        pageSize: pagination.limit,
+        pageIndex: pagination.page - 1
+      }
     },
+    pageCount: pagination.totalPages,
+    manualPagination: true,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,

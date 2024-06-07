@@ -20,6 +20,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -36,8 +37,36 @@ export function DataTableFacetedFilter<TData, TValue>({
   title,
   options
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const facets = column?.getFacetedUniqueValues()
-  const selectedValues = new Set(column?.getFilterValue() as string[])
+  const pathname = usePathname()
+  const { replace } = useRouter()
+  const searchParams = useSearchParams()
+
+  function handleFilter(value: string) {
+    const params = new URLSearchParams(searchParams)
+    const values = params.getAll(column?.id as string)
+
+    if (values.includes(value)) {
+      column?.setFilterValue(undefined)
+      params.delete(column?.id as string)
+      values
+        .filter(v => v !== value)
+        .forEach(v => params.append(column?.id as string, v))
+    } else {
+      column?.setFilterValue(value)
+      params.append(column?.id as string, value)
+    }
+
+    replace(`${pathname}?${params.toString()}`)
+  }
+
+  function clearFilter() {
+    column?.setFilterValue(undefined)
+    const params = new URLSearchParams(searchParams)
+    params.delete(column?.id as string)
+    replace(`${pathname}?${params.toString()}`)
+  }
+
+  const selectedValues = new Set(searchParams.getAll(column?.id as string))
 
   return (
     <Popover>
@@ -45,6 +74,7 @@ export function DataTableFacetedFilter<TData, TValue>({
         <Button variant="outline" size="sm" className="h-8 border-dashed">
           <PlusCircledIcon className="mr-2 h-4 w-4" />
           {title}
+
           {selectedValues?.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
@@ -80,6 +110,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           )}
         </Button>
       </PopoverTrigger>
+
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
           <CommandInput placeholder={title} />
@@ -91,17 +122,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 return (
                   <CommandItem
                     key={option.value}
-                    onSelect={() => {
-                      if (isSelected) {
-                        selectedValues.delete(option.value)
-                      } else {
-                        selectedValues.add(option.value)
-                      }
-                      const filterValues = Array.from(selectedValues)
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      )
-                    }}
+                    onSelect={() => handleFilter(option.value)}
                   >
                     <div
                       className={cn(
@@ -117,21 +138,17 @@ export function DataTableFacetedFilter<TData, TValue>({
                       <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
                     )}
                     <span>{option.label}</span>
-                    {facets?.get(option.value) && (
-                      <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value)}
-                      </span>
-                    )}
                   </CommandItem>
                 )
               })}
             </CommandGroup>
+
             {selectedValues.size > 0 && (
               <>
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
+                    onSelect={() => clearFilter()}
                     className="justify-center text-center"
                   >
                     Clear filters

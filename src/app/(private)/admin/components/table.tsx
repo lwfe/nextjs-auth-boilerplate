@@ -3,6 +3,7 @@ import { columns } from './columns'
 import { useCallback, useEffect, useState } from 'react'
 import { IPaginatedResult, IUser } from '@/models/user'
 import { DataTable } from '@/components/table/data-table'
+import { DataTableToolbar } from './data-table-toolbar'
 
 interface Params {
   query: string
@@ -45,6 +46,7 @@ export function Table({ params }: { params: Params }) {
         data={data.data}
         columns={columns}
         pagination={data.pagination}
+        toolbar={DataTableToolbar}
       />
     </div>
   )

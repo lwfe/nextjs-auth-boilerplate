@@ -27,19 +27,26 @@ import {
 
 import { IPaginatedResult } from '@/models/user'
 
-import { DataTableToolbar } from './data-table-toolbar'
 import { DataTablePagination } from './data-table-pagination'
+
+import { Table as TableType } from '@tanstack/react-table'
+
+export interface DataTableToolbarProps<TData> {
+  table: TableType<TData>
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   pagination: IPaginatedResult<TData>['pagination']
+  toolbar?: (props: DataTableToolbarProps<TData>) => React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  pagination
+  pagination,
+  toolbar
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -63,6 +70,7 @@ export function DataTable<TData, TValue>({
       }
     },
     pageCount: pagination.totalPages,
+    manualFiltering: true,
     manualPagination: true,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -79,7 +87,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      {toolbar && toolbar({ table })}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

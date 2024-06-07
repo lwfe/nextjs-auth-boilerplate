@@ -1,58 +1,62 @@
 'use client'
 
 import { Cross2Icon } from '@radix-ui/react-icons'
-import { Table } from '@tanstack/react-table'
+
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { DataTableViewOptions } from './data-table-view-options'
 
-import { DataTableFacetedFilter } from './data-table-faceted-filter'
-
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>
-}
+import { DataTableToolbarProps } from '@/components/table/data-table'
+import { DataTableViewOptions } from '@/components/table/data-table-view-options'
+import { DataTableFacetedFilter } from '@/components/table/data-table-faceted-filter'
 
 export function DataTableToolbar<TData>({
   table
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0
+  const pathname = usePathname()
+  const { replace } = useRouter()
+  const searchParams = useSearchParams()
+
+  const isFiltered = table
+    .getAllColumns()
+    .some(column => searchParams.has(column.id))
+
+  function clearFilter() {
+    const params = new URLSearchParams(searchParams)
+    table.getAllColumns().forEach(column => params.delete(column.id))
+    replace(`${pathname}?${params.toString()}`)
+  }
+
+  if (!table) return null
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter users..."
-          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+          value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
           onChange={event =>
-            table.getColumn('title')?.setFilterValue(event.target.value)
+            table.getColumn('email')?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
+
         {table.getColumn('role') && (
           <DataTableFacetedFilter
             column={table.getColumn('role')}
-            title="Status"
+            title="Role"
             options={[
-              {
-                label: 'Admin',
-                value: 'admin'
-              },
+              { label: 'Admin', value: 'admin' },
               { label: 'Default', value: 'default' }
             ]}
           />
         )}
-        {table.getColumn('priority') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('priority')}
-            title="Priority"
-            options={[]}
-          />
-        )}
+
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => clearFilter()}
             className="h-8 px-2 lg:px-3"
           >
             Reset

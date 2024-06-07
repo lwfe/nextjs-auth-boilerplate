@@ -6,8 +6,9 @@ import { ColumnDef } from '@tanstack/react-table'
 
 import { Checkbox } from '@/components/ui/checkbox'
 
-import { DataTableRowActions } from '@/components/table/data-table-row-actions'
+import { DataTableRowActions } from './data-table-row-actions'
 import { DataTableColumnHeader } from '@/components/table/data-table-column-header'
+
 import { Badge } from '@/components/ui/badge'
 
 export const columns: ColumnDef<IUser>[] = [
@@ -46,7 +47,8 @@ export const columns: ColumnDef<IUser>[] = [
       <div className="pr-2 w-fit whitespace-nowrap">{row.getValue('id')}</div>
     ),
     enableSorting: false,
-    enableHiding: false
+    enableHiding: false,
+    enableColumnFilter: false
   },
   {
     accessorKey: 'name',
@@ -97,7 +99,8 @@ export const columns: ColumnDef<IUser>[] = [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
-    }
+    },
+    enableSorting: false
   },
   {
     id: 'actions',

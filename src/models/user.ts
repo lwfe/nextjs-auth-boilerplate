@@ -35,7 +35,7 @@ async function findOneByEmail(email: string): Promise<IUser | null> {
 export interface IUserFilter {
   name?: string
   email?: string
-  role?: string
+  role?: string[]
 }
 
 export interface IPaginatedResult<T> {
@@ -70,10 +70,10 @@ async function filterUsers(
     index++
   }
 
-  if (filters.role) {
-    filterClauses.push(`role = $${index}`)
-    values.push(`${filters.role}`)
-    index++
+  if (filters.role && filters.role.length > 0) {
+    const rolePlaceholders = filters.role.map(() => `$${index++}`).join(', ')
+    filterClauses.push(`role IN (${rolePlaceholders})`)
+    values.push(...filters.role)
   }
 
   const filterString =

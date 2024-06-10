@@ -2,6 +2,8 @@
 
 import { Cross2Icon } from '@radix-ui/react-icons'
 
+import { useDebounceCallback } from 'usehooks-ts'
+
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
@@ -28,6 +30,21 @@ export function DataTableToolbar<TData>({
     replace(`${pathname}?${params.toString()}`)
   }
 
+  function handleQuery(query: string) {
+    const params = new URLSearchParams(searchParams)
+    if (query) {
+      params.set('query', query)
+    } else {
+      params.delete('query')
+    }
+    replace(`${pathname}?${params.toString()}`)
+  }
+
+  const debounced = useDebounceCallback(
+    (query: string) => handleQuery(query),
+    500
+  )
+
   if (!table) return null
 
   return (
@@ -35,10 +52,8 @@ export function DataTableToolbar<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter users..."
-          value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-          onChange={event =>
-            table.getColumn('email')?.setFilterValue(event.target.value)
-          }
+          defaultValue={searchParams.get('query') || ''}
+          onChange={event => debounced(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
 

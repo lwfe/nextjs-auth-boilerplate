@@ -36,6 +36,7 @@ export interface IUserFilter {
   name?: string
   email?: string
   role?: string[]
+  query?: string
 }
 
 export interface IPaginatedResult<T> {
@@ -67,6 +68,18 @@ async function filterUsers(
   if (filters.email) {
     filterClauses.push(`email ILIKE $${index}`)
     values.push(`${filters.email}%`)
+    index++
+  }
+
+  if (filters.query) {
+    const queryPlaceholders = [
+      `id::text ILIKE $${index}`,
+      `name ILIKE $${index}`,
+      `email ILIKE $${index}`,
+      `role ILIKE $${index}`
+    ]
+    filterClauses.push(`(${queryPlaceholders.join(' OR ')})`)
+    values.push(`%${filters.query}%`)
     index++
   }
 

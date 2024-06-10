@@ -82,11 +82,12 @@ export function Sidebar({
                 href: '/admin'
               },
               {
-                title: 'Sessions',
+                title: 'Some route',
                 label: '9',
                 icon: MousePointerClick,
-                variant: path === '/admin/sessions' ? 'default' : 'ghost',
-                href: '/admin/sessions'
+                variant:
+                  path === '/admin/some-other-route' ? 'default' : 'ghost',
+                href: '/admin/some-other-route'
               }
             ]}
           />

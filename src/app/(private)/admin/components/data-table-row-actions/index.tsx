@@ -1,7 +1,9 @@
 'use client'
 
-import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import { IUser } from '@/models/user'
+
 import { Row } from '@tanstack/react-table'
+import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -11,12 +13,14 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+
+import { EditDialog } from './edit-dialog'
+import { DeleteDialog } from './delete-dialog'
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -37,15 +41,18 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <EditDialog user={row.original as IUser} />
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>Roles</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuRadioGroup>
-              {[{ value: 'bug', label: 'Bug' }].map(label => (
+              {[
+                { value: 'admin', label: 'Admin' },
+                { value: 'default', label: 'Default' }
+              ].map(label => (
                 <DropdownMenuRadioItem key={label.value} value={label.value}>
                   {label.label}
                 </DropdownMenuRadioItem>
@@ -54,9 +61,8 @@ export function DataTableRowActions<TData>({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+        <DropdownMenuItem asChild>
+          <DeleteDialog />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

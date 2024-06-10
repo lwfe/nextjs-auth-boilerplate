@@ -10,6 +10,7 @@ interface Params {
   role: string
   page: string
   limit: string
+  sort: string
 }
 
 export function Table({ params }: { params: Params }) {

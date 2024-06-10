@@ -8,12 +8,14 @@ export default async function AdminPage({
     role?: string
     page?: string
     limit?: string
+    sort?: string
   }
 }) {
   const query = searchParams?.query || ''
   const role = searchParams?.role || ''
   const page = searchParams?.page || ''
   const limit = searchParams?.limit || ''
+  const sort = searchParams?.sort || ''
 
   return (
     <div className="flex h-full flex-1 flex-col space-y-8 p-8 overflow-y-auto">
@@ -30,7 +32,8 @@ export default async function AdminPage({
           query,
           limit,
           page,
-          role
+          role,
+          sort
         }}
       />
     </div>

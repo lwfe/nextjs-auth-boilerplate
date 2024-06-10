@@ -57,8 +57,15 @@ export async function GET(req: NextRequest) {
   const email = q.get('email') ?? undefined
   const role = q.get('role')?.split(',') ?? undefined
   const query = q.get('query') ?? undefined
+  const sort = q.get('sort') ?? undefined
 
-  const data = await user.filterUsers(page, limit, { name, email, role, query })
+  const data = await user.filterUsers(page, limit, {
+    name,
+    email,
+    role,
+    query,
+    sort
+  })
 
   return Response.json(data, { status: 200 })
 }

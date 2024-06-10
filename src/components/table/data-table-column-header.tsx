@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 interface DataTableColumnHeaderProps<TData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -27,6 +28,20 @@ export function DataTableColumnHeader<TData, TValue>({
   title,
   className
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  const pathname = usePathname()
+  const { replace } = useRouter()
+  const searchParams = useSearchParams()
+
+  function handleSort(type: 'asc' | 'desc') {
+    const params = new URLSearchParams(searchParams)
+    if (params.get('sort') === `${column.id}:${type}`) {
+      params.delete('sort')
+    } else {
+      params.set('sort', `${column.id}:${type}`)
+    }
+    replace(`${pathname}?${params.toString()}`)
+  }
+
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>
   }
@@ -41,9 +56,9 @@ export function DataTableColumnHeader<TData, TValue>({
             className="-ml-3 h-8 data-[state=open]:bg-accent"
           >
             <span>{title}</span>
-            {column.getIsSorted() === 'desc' ? (
+            {searchParams.get('sort') === `${column.id}:desc` ? (
               <ArrowDownIcon className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'asc' ? (
+            ) : searchParams.get('sort') === `${column.id}:asc` ? (
               <ArrowUpIcon className="ml-2 h-4 w-4" />
             ) : (
               <CaretSortIcon className="ml-2 h-4 w-4" />
@@ -51,11 +66,11 @@ export function DataTableColumnHeader<TData, TValue>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
+          <DropdownMenuItem onClick={() => handleSort('asc')}>
             <ArrowUpIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Asc
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
+          <DropdownMenuItem onClick={() => handleSort('desc')}>
             <ArrowDownIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Desc
           </DropdownMenuItem>

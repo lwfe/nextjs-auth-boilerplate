@@ -37,6 +37,7 @@ export interface IUserFilter {
   email?: string
   role?: string[]
   query?: string
+  sort?: string
 }
 
 export interface IPaginatedResult<T> {
@@ -92,6 +93,10 @@ async function filterUsers(
   const filterString =
     filterClauses.length > 0 ? `WHERE ${filterClauses.join(' AND ')}` : ''
 
+  const sortString = filters.sort
+    ? `ORDER BY ${filters.sort.split(':')[0]} ${filters.sort.split(':')[1]}`
+    : 'ORDER BY id'
+
   const queryData = `
     SELECT
       id,
@@ -101,7 +106,7 @@ async function filterUsers(
     FROM 
       "USERS"
     ${filterString}
-    ORDER BY id
+    ${sortString}
     LIMIT $${index}
     OFFSET $${index + 1}
   `

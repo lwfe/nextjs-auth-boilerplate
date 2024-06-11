@@ -14,5 +14,6 @@ export async function DELETE(
 
   await session.deleteOneByToken(foundSession.token)
   session.clearSessionIdCookie()
+  session.clearUserIdCookie()
   return new Response(null, { status: 204 })
 }

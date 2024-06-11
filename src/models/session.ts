@@ -2,6 +2,7 @@ import crypto from 'crypto'
 
 import database from '@/infra/database'
 import { cookies } from 'next/headers'
+import encryption from './encryption'
 
 interface ISession {
   id: string
@@ -65,6 +66,27 @@ function clearSessionIdCookie() {
   })
 }
 
+function setUserIdCookieInResponse(userId: string) {
+  const encryptedUser = encryption.encrypt(userId)
+  cookies().set({
+    name: 'user',
+    value: encryptedUser,
+    maxAge: SESSION_EXPIRATION_IN_SECONDS,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/'
+  })
+}
+
+function clearUserIdCookie() {
+  cookies().set({
+    name: 'user',
+    value: '',
+    maxAge: 0,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/'
+  })
+}
+
 async function deleteOneByToken(token: string) {
   const query = {
     text: `DELETE FROM "SESSIONS" WHERE token = $1`,
@@ -88,5 +110,7 @@ export default Object.freeze({
   deleteOneByToken,
   clearSessionIdCookie,
   deleteSessionsByUserId,
-  findOneById
+  findOneById,
+  setUserIdCookieInResponse,
+  clearUserIdCookie
 })

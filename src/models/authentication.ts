@@ -4,6 +4,7 @@ import password from '@/models/password'
 async function createSessionAndSetCookies(userId: string) {
   const sessionObject = await session.create(userId)
   session.setSessionIdCookieInResponse(sessionObject.id)
+  session.setUserIdCookieInResponse(userId)
   return sessionObject
 }
 

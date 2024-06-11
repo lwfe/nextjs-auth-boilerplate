@@ -48,3 +48,18 @@ export async function DELETE(
 
   return new Response(null, { status: 204 })
 }
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const userExists = await user.findOneById(params.id)
+
+  if (!userExists) {
+    return Response.json({ error: 'User not found' }, { status: 404 })
+  }
+
+  let serializedUser = validator.omit(userExists, ['password'])
+
+  return Response.json(serializedUser, { status: 200 })
+}

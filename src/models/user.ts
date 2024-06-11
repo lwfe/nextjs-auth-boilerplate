@@ -1,4 +1,5 @@
 import database from '@/infra/database'
+import session from './session'
 
 export interface IUser {
   id: string
@@ -201,6 +202,9 @@ async function remove(id: string) {
     text: 'DELETE FROM "USERS" WHERE id = $1',
     values: [id]
   })
+
+  // When user is deleted, the sessions will be deleted as well
+  await session.deleteSessionsByUserId(id)
 }
 
 export default Object.freeze({

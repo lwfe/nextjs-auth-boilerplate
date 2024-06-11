@@ -73,11 +73,20 @@ async function deleteOneByToken(token: string) {
   await database.query(query)
 }
 
+async function deleteSessionsByUserId(userId: string) {
+  const query = {
+    text: `DELETE FROM "SESSIONS" WHERE user_id = $1`,
+    values: [userId]
+  }
+  await database.query(query)
+}
+
 export default Object.freeze({
   create,
   findOneByToken,
   setSessionIdCookieInResponse,
   deleteOneByToken,
   clearSessionIdCookie,
+  deleteSessionsByUserId,
   findOneById
 })

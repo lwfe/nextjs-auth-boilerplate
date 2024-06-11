@@ -32,6 +32,59 @@ async function findOneByEmail(email: string): Promise<IUser | null> {
   return query?.rows[0]
 }
 
+async function findOneById(id: string): Promise<IUser | null> {
+  const query = await database.query({
+    text: `SELECT * FROM "USERS" WHERE id = $1`,
+    values: [id]
+  })
+
+  if (!query?.rows[0]) return null
+
+  return query?.rows[0]
+}
+
+export interface IUserUpdateDTO
+  extends Partial<
+    Omit<IUser, 'id' | 'password' | 'created_at' | 'updated_at'>
+  > {}
+
+async function update(id: string, data: IUserUpdateDTO) {
+  const fields = []
+  const values = []
+  let index = 1
+
+  if (data.name !== undefined) {
+    fields.push(`name = $${index++}`)
+    values.push(data.name)
+  }
+
+  if (data.email !== undefined) {
+    fields.push(`email = $${index++}`)
+    values.push(data.email)
+  }
+
+  if (data.role !== undefined) {
+    fields.push(`role = $${index++}`)
+    values.push(data.role)
+  }
+
+  values.push(id)
+
+  const query = `
+    UPDATE "USERS"
+    SET ${fields.join(', ')}
+    WHERE id = $${index}
+    RETURNING *
+  `
+
+  const result = await database.query({
+    text: query,
+    values
+  })
+
+  return result?.rows[0]
+}
+
 export interface IUserFilter {
   name?: string
   email?: string
@@ -143,4 +196,18 @@ async function filterUsers(
   }
 }
 
-export default Object.freeze({ create, findOneByEmail, filterUsers })
+async function remove(id: string) {
+  await database.query({
+    text: 'DELETE FROM "USERS" WHERE id = $1',
+    values: [id]
+  })
+}
+
+export default Object.freeze({
+  create,
+  findOneByEmail,
+  filterUsers,
+  findOneById,
+  update,
+  remove
+})

@@ -3,7 +3,7 @@
 import { IUser } from '@/models/user'
 import encryption from '@/models/encryption'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { User } from 'lucide-react'
 import { getCookie } from 'cookies-next'
 import { Sidebar } from './components/sidebar'
@@ -14,6 +14,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const userId = getCookie('user')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -21,9 +22,12 @@ export default function AdminLayout({
       const user = (await fetch(`/api/v1/users/${decryptedUserId}`).then(res =>
         res.json()
       )) as IUser
-      if (user.role !== 'admin') window.location.href = '/'
+      if (user.role !== 'admin') return (window.location.href = '/')
+      setIsAdmin(true)
     })()
   }, [userId])
+
+  if (!isAdmin) return <></>
 
   return (
     <main className="h-full flex">

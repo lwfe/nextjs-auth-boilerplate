@@ -17,7 +17,7 @@ const healthCheckDB = async () => {
       }
 
       return await new Promise((resolve, reject) => {
-        exec(`docker exec postgres-dev pg_isready`, async (error, stdout) => {
+        exec(`docker exec nextjs-auth-db pg_isready`, async (error, stdout) => {
           const healthCheckStatus = stdout
           console.log('health check postgres: ', healthCheckStatus)
 

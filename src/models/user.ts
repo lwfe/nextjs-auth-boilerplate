@@ -6,6 +6,7 @@ export interface IUser {
   name: string
   email: string
   role: 'default' | 'admin'
+  first_access: boolean
   password: string
   created_at: Date
   updated_at: Date
